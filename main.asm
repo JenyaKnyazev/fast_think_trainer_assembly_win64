@@ -27,7 +27,12 @@ string4 DB "Enter your answer: "
 correct DB "CORRECT"
 wrong DB "WRONG"
 again DB "again = 1 ,other = exit "
-good_bay DB "Good Bay"
+good_bay DB 10,"Good Bay"
+start_time QWORD ?
+end_time QWORD ?
+seconds DD ?
+minutes DD ?
+time_seperator DB ":"
 .code
 	main proc
 		mov rcx,-11
@@ -36,6 +41,10 @@ good_bay DB "Good Bay"
 		mov rcx,-10
 		call GetStdHandle
 		mov handle_input,rax
+		mov rax,0
+		mov rdx,0
+		call GetTickCount
+		mov start_time,rax
 		run_main2:
 		mov sum,0
 		call get_info
@@ -72,12 +81,47 @@ good_bay DB "Good Bay"
 		mov rcx,handle_output
 		mov rdx,0
 		call SetConsoleCursorPosition
+		mov rax,0
+		mov rdx,0
+		call GetTickCount
+		mov end_time,rax
+		call print_time
 		mov rsi,offset good_bay
-		mov rbx,8
+		mov rbx,9
 		call print_string
+		mov rcx,5000
+		call Sleep
 		mov rcx,0
 		call ExitProcess
 	main endp
+
+	print_time proc
+		mov rax,end_time
+		sub rax,start_time
+		mov rdx,0
+		mov rbx,1000
+		div rbx
+		mov rbx,60
+		mov rdx,0
+		div rbx
+		mov minutes,eax
+		mov seconds,edx
+		mov number,eax
+		call num_to_string
+		mov rsi,offset number_string
+		mov rbx,5
+		call print_string
+		lea rsi,time_seperator
+		mov rbx,1
+		call print_string
+		mov eax,seconds
+		mov number,eax
+		call num_to_string
+		mov rsi,offset number_string
+		mov rbx,5
+		call print_string
+		ret
+	print_time endp
 
 	generate_random proc
 		pop r11
@@ -286,4 +330,36 @@ good_bay DB "Good Bay"
 		call input_string
 		ret
 	ask endp
+
+	num_to_string proc
+		mov rsi,offset number_string
+		mov rax,0
+		mov rdx,0
+		mov eax,number
+		mov ebx,10
+		run_convert:
+			div ebx
+			add dl,48
+			mov [rsi],dl
+			mov number,eax
+			mov rax,0
+			mov rdx,0
+			mov eax,number
+			inc rsi
+			cmp number,0
+			jne run_convert
+		mov byte ptr[rsi],0
+		mov rdi,offset number_string
+		dec rsi
+		run_convert2:
+			mov al,[rsi]
+			mov ah,[rdi]
+			mov [rsi],ah
+			mov [rdi],al
+			dec rsi
+			inc rdi
+			cmp rsi,rdi
+			jg run_convert2
+		ret
+	num_to_string endp
 end
