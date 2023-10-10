@@ -127,7 +127,6 @@ time_seperator DB ":"
 		pop r11
 		mov stack_save,r11
 		mov number,0
-		mov ebx,9
 		mov rsi,offset number_string
 		run_gen:
 			mov rcx,7
@@ -135,6 +134,7 @@ time_seperator DB ":"
 			mov rax,0
 			mov rdx,0
 			call GetTickCount
+			mov ebx,9
 			div ebx
 			inc edx
 			mov r15d,edx
@@ -144,6 +144,7 @@ time_seperator DB ":"
 			mov rax,0
 			mov rdx,0
 			mov eax,number
+			mov ebx,10
 			mul ebx
 			add eax,r15d
 			mov number,eax
